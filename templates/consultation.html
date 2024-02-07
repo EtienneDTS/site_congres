@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{url_for('static', filename='consultation.css')}}">
+{% endblock %}
+
+{% block title %}{% endblock %}
+
+
+{% block content %}
+<div class="container" >
+  <h2>Consultez vos inscriptions aux congrès</h2>
+  <form action="{{url_for('consultation')}}" method="POST">
+    <label>Entrez votre email: </label>
+    <input type="email" name="email">
+    <h3 class="message">{{message}}</h3>
+    <button type="submit">Consulter</button>
+  </form>
+  {% if data %}
+  <div class="content">
+
+  </div>
+  {% endif %}
+</div>
+
+
+{% endblock %}

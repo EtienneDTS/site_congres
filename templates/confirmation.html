@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+
+{% block styles %}
+<link rel="stylesheet" href="{{url_for('static', filename='confirmation.css')}}">
+{% endblock %}
+
+{% block title %}Confirmation{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Confirmation</h2>
+    <p>Votre inscription a bien été prise en compte.</p>
+</div>
+
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{url_for('static', filename='inscription.css')}}">
+{% endblock %}
+
+{% block title %}Inscription{% endblock %}
+
+{% block content %}
+<form action="{{url_for('inscription')}}" method="POST">
+    <h2>Inscription</h2>
+    <h3 class="message">{{message}}</h3>
+    <div class="container">
+        <label>Nom</label>
+        <input type="text" name="lastname" required>
+        <label>Prenom</label>
+        <input type="text" name="firstname" required>
+        <label>organisme</label>
+        <input type="text" name="organism" required>
+        <label>Code postal</label>
+        <input type="text" name="cp">
+        <label>Adresse</label>
+        <input type="text" name="address">
+        <label>Ville</label>
+        <input type="text" name="city" required>
+        <label>Pays</label>
+        <input type="text" name="country" required>
+        <label>Email</label>
+        <input type="email" name="email" required>
+        <hr>
+        <label for="status">Statut</label>
+        <div class="status">
+            {% for element in status %}
+            <div>
+                <label for="status">{{element[1]}}</label>
+                <input type="radio" value="{{element[0]}}" name="status" required>
+            </div>
+            {% endfor %}
+
+        </div>
+    </div>
+    <button type="submit">S'inscrire</button>
+</form>
+
+
+
+{% endblock %}
