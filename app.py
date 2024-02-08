@@ -65,7 +65,6 @@ def inscription():
     query = "select * from statuts"
     result = query_db(connexion, query)
     status = result[0]
-    message = ""
     if request.method == "POST":
         code = request.form.get("cp", "--")
         lastname = request.form.get("lastname")
@@ -102,7 +101,7 @@ def inscription():
         connexion.commit()
         connexion.close()
         return redirect(url_for("confirmation"))
-    return render_template('inscription.html', message="", status=status)
+    return render_template('inscription.html', status=status)
 
 
 @app.route("/confirmation")
@@ -112,7 +111,6 @@ def confirmation():
 
 @app.route("/consultation", methods=['POST', 'GET'])
 def consultation():
-    message = ""
     connexion = create_connexion()
     if request.method == "POST":
         email = request.form.get('email')
@@ -124,19 +122,37 @@ def consultation():
             connexion.close()
             return render_template('consultation.html', message=message)
         codparticipant = result[0][0][0]
-        query = "select codcongres from inscrire where codparticipant = ?"
-        params = str(codparticipant)
+        query = """
+        select c.codcongres, c.titrecongres, c.numeditioncongres, c.dtdebutcongres, c.dtfincongres, t.nomthematique
+        from congres c, inscrire i, participants p, choix_thematiques ct, thematiques t
+        where c.codcongres = i.codcongres
+        and p.codparticipant = i.codparticipant
+        and ct.codparticipant = p.codparticipant
+        and ct.codethematique = t.codethematique
+        and p.codparticipant = ?"""
+        params = [str(codparticipant)]
         result = query_db(connexion, query, params)
-        print(result)
+        data = result[0]
+        column = result[1] # utilise pas car moche demander au prof
+        connexion.close()
         congres_list = []
-        for code in result[0]:
-            query = "select * from congres where codcongres = ?"
-            params = str(code[0])
-            result = query_db(connexion, query, params)
-            print(result[0])
+        congres = [[]]
+        
+        for line in data:
+            for word in line[:-1]:
+                congres.append(word)
+            if congres not in congres_list:
+                congres_list.append(congres)
+            congres = [[]]
+            
+        for line in data:
+            for congres in congres_list:
+                if line[0] == congres[1]:
+                    congres[0].append(line[-1])
+                
+        return render_template('consultation.html', data=congres_list)
 
-
-    return render_template('consultation.html', message=message)
+    return render_template('consultation.html')
 
 
 if __name__ == "__main__":

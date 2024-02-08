@@ -15,7 +15,7 @@ form {
 }
 
 h2 {
-  color: #fbdd31;
+  color: #ffc107;
 }
 
 label {
@@ -43,7 +43,7 @@ label {
 }
 
 .container input:focus {
-  border-color: #fbdd31;
+  border-color: #ffc107;
   outline: none;
 }
 
@@ -55,7 +55,7 @@ form button {
   width: 80%;
   height: 40px;
   margin-top: 20px;
-  background-color: #fbdd31;
+  background-color: #ffc107;
   color: white;
   border: none;
   border-radius: 5px;
@@ -63,10 +63,11 @@ form button {
   transition: background-color 0.3s ease;
   cursor: pointer;
   font-weight: bold;
+  transition: box-shadow 0.3s ease;
 }
 
 form button:hover {
-  background-color: #efcf18;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
 }
 
 .message {
@@ -101,4 +102,4 @@ form button:hover {
 
 .status label {
   font-weight: normal;
-} 
+}

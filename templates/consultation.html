@@ -13,12 +13,44 @@
   <form action="{{url_for('consultation')}}" method="POST">
     <label>Entrez votre email: </label>
     <input type="email" name="email">
+    {% if message %}
     <h3 class="message">{{message}}</h3>
+    {% endif %}
     <button type="submit">Consulter</button>
   </form>
-  {% if data %}
+  {% if data is defined %}
   <div class="content">
-
+    {% if not data %}
+    <h3>Vous n'êtes inscrit à aucun congrès</h3>
+    {% else %}
+    <h3>Informations sur vos inscriptions</h3>
+    <table>
+      <thead>
+        <th>Congrès</th>
+        <th>Edition</th>
+        <th>Date de début</th>
+        <th>Date de fin</th>
+        <th>Thème choisie</th>
+      </thead>
+      <tbody>
+      {% for item in data %}
+      <tr>
+        <td>{{item[2]}}</td>
+        <td>{{item[3]}}</td>
+        <td>{{item[4]}}</td>
+        <td>{{item[5]}}</td>
+        <td>
+          <ul>
+            {% for theme in item[0] %}
+            <li>{{theme}}</li>
+            {% endfor %}
+          </ul>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
   </div>
   {% endif %}
 </div>
