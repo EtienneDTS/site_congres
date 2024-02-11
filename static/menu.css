@@ -1,0 +1,43 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 60px;
+    width: 80%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    margin-bottom: 60px;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #f8f9fa;
+    padding: 20px;
+}
+
+h2 {
+    color: #ffc107;
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.menu li, .menu a {
+    margin: 5px;
+    color: #333;
+    font-weight: bold;
+    transform: border-bottom 0.3s ease-in-out;
+}
+
+.menu a:hover {
+    color: #ffc107;
+    border-bottom: solid 2px #ffc107;
+
+}
+
+
+

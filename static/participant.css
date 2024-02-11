@@ -1,0 +1,57 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 60px;
+    width: 80%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    margin-bottom: 60px;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #f8f9fa;
+    padding: 20px;
+    position: relative;
+
+
+}
+
+h2 {
+    color: #ffc107;
+}
+
+
+
+.container table {
+    display: block;
+    position: relative;
+    margin-top: 20px;
+    width: 100%;
+}
+
+table th,
+table td {
+    text-align: left;
+    padding: 10px;
+    vertical-align: top;
+    border-bottom: solid 1px #333;
+}
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+
+
+}
+
+@media screen and (min-width: 1654px) {
+    .container table {
+        display: table;
+
+    }
+}

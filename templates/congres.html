@@ -1,28 +1,40 @@
 {% extends 'base.html' %}
 
-{% block content %}
-<h2>Liste des congrès</h2>
+{% block styles %}
+<link rel="stylesheet" href="{{url_for('static', filename='congres.css')}}">
+{% endblock %}
 
-<table>
-    <thead>
-        <tr>
-            {% for title in column %}
-            <th>{{ title }}</th>
-            {% endfor %}
-        </tr>
-    </thead>
-    <tbody>
-    {% for congres in data %}
-    <tr>
-        <td>{{congres[0]}}</td>
-        <td>{{congres[1]}}</td>
-        <td>{{congres[2]}}</td>
-        <td>{{congres[3]}}</td>
-        <td>{{congres[4]}}</td>
-        <td>{{congres[5]}}</td>
-    </tr>
-    {% endfor %}
-    </tbody>
-</table>
+{% block title %} Liste des congrès {% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <h2>Liste des congrès</h2>
+    <div class="table-container">
+        <table >
+            <thead>
+                <tr>
+                    {% for title in column %}
+                    <th>{{ title }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for congres in data %}
+                <tr>
+                    <td>{{congres[0]}}</td>
+                    <td>{{congres[1]}}</td>
+                    <td>{{congres[2]}}</td>
+                    <td>{{congres[3]}}</td>
+                    <td>{{congres[4]}}</td>
+                    <td>{{congres[5]}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+</div>
+
 
 {% endblock %}
