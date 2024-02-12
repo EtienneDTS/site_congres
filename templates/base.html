@@ -18,6 +18,9 @@
 
 <footer>
     <a href="{{url_for('menu')}}">Retour à la page d'accueil</a>
+    {% if session['participant'] %}
+    <p>{{session['participant']['emailpart']}} <a href="{{url_for('logout')}}">Me déconnecter</a></p>
+    {% endif %}
     <hr>
     <div>Copyright 2030 by the site de gestion de congrès !</div>
 </footer>

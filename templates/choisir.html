@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{url_for('static', filename='choisir.css')}}">
+{% endblock %}
+
+{% block title %}Choisir{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Information du participant</h2>
+    <div class="user">
+        <p>Nom: {{session["participant"]["nompart"]}} </p>
+        <p>Prenom: {{session["participant"]["prenompart"]}}</p>
+        <p>Statut: {{session["participant"]["codestatut"]}}</p>
+        <p>Organisme: {{session["participant"]["organismepart"]}}</p>
+        <p>Adresse: {{session["participant"]["adrpart"]}}</p>
+        <p>CP: {{session["participant"]["cppart"]}}</p>
+        <p>Ville: {{session["participant"]["villepart"]}}</p>
+        <p>Pays: {{session["participant"]["payspart"]}}</p>
+        <p>Email: {{session["participant"]["emailpart"]}}</p>
+        <p>Date d'inscription: {{session["participant"]["dtinscription"]}}</p>
+    </div>
+    <h2>Choisir</h2>
+    <h3>les thématiques et activités du congrès {{congres[0]}} edition {{congres[1]}}</h3>
+    <form action="" method="POST">
+        <input type="hidden" name="codcongres" value="{{congres[2]}}">
+        <h4>Thématiques</h4>
+        <div class="themes-container">
+            {% for theme in themes %}
+            <div>
+                <label name="theme">{{theme[1]}}</label>
+                <input type="checkbox" value="{{theme[0]}}" name="theme">
+            </div>
+            {% endfor %}
+        </div>
+        <hr>
+        <h4>Activités</h4>
+        <div class="activities-container">
+            {% for activity in activities %}
+            <div>
+                <label name="theme">{{activity[1]}}</label>
+                <input type="checkbox" value="{{activity[0]}}" name="activity">
+            </div>
+            {% endfor %}
+        </div>
+        <button type="submit">Choisir</button>
+
+    </form>
+
+</div>
+
+{% endblock %}

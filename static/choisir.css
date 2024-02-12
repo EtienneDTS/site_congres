@@ -1,0 +1,118 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 60px;
+    width: 80%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    margin-bottom: 60px;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #f8f9fa;
+    padding: 20px;
+}
+
+h2 {
+    color: #ffc107;
+}
+
+label {
+    font-weight: bold;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+    width: 100%;
+    justify-content: space-around;
+    align-items: center;
+}
+
+form input {
+    width: 80%;
+    height: 40px;
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+form input:focus {
+    border-color: #ffc107;
+    outline: none;
+}
+
+form input:hover {
+    border-color: #efcf18;
+}
+
+form input[type="radio"] {
+    width: 30px;
+    height: 30px;
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+form button {
+    width: 80%;
+    height: 40px;
+    margin-top: 20px;
+    background-color: #ffc107;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+    font-weight: bold;
+    transition: box-shadow 0.3s ease;
+}
+
+form button:hover {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+}
+
+.user {
+    margin: 20px;
+    text-align: center;
+    width: 80%;
+}
+
+.user p {
+    margin: 5px;
+}
+
+
+h3 {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.themes-container,
+.activities-container {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+}
+
+.themes-container div,
+.activities-container div {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.activities-container input,
+.themes-container input {
+    width: 40px;
+}

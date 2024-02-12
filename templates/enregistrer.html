@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{url_for('static', filename='enregistrer.css')}}">
+{% endblock %}
+
+{% block title %}Enregistrer{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Enregistrer</h2>
+    <form action="{{url_for('enregistrer')}}" method="post">
+        {% if message %}
+        <div class="message">{{message}}</div>
+        {% endif %}
+        <label for="email">email</label>
+        <input type="email" name="email" required>
+        <div class="congres-container">
+            <h3>Congrès</h3>
+            {% for element in congres %}
+            <div>
+                <div>
+                    <p>{{element[1]}} edition {{element[2]}}</p>
+                    <p>Du {{element[3]}} au {{element[4]}}</p>
+                    <a href="{{element[5]}}">En savoir plus</a>
+                </div>
+                <input type="radio" value="{{element[0]}}" name="congres" required>
+            </div>
+
+
+            {% endfor %}
+        </div>
+        <button type="submit">Envoyer</button>
+    </form>
+</div>
+{% endblock %}

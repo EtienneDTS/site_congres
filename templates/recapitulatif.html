@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{{url_for('static', filename='recapitulatif.css')}}">
+{% endblock %}
+
+{% block title %}Récapitulatif{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h2>Récapitulatif</h2>
+        <p>Vous avez bien créé le congrès <b>{{title}}</b>.</p>
+        <p>Le numéro d'édition est le <b>{{num}}</b>.</p>
+        <p>Le site web du congrès est <b>{{url}}</b>.</p>
+        <p>Le congrès se déroulera du <b>{{start}}</b> au <b>{{end}}</b>.</p>
+        <h3>Les thématiques du congrès sont :</h3>
+        <ul>
+            {% for theme in themes %}
+            <li>{{theme[0]}}</li>
+            {% endfor %}
+        </ul>
+        <h3>Les activités du congrès sont :</h3>
+        <ul>
+            {% for activity in activities %}
+            <li>{{activity[0]}}</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

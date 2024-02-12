@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block styles %}
+<link rel="stylesheet" href="{{url_for('static', filename='creation.css')}}">
+{% endblock %}
+
+
+{% block title %}Creation{% endblock %}
+
+{% block content %}
+<form action="{{url_for('recapitulatif')}}" method="POST">
+    <h2>Création d'un congrès</h2>
+    {% if message %}
+    <h3 class="message">{{message}}</h3>
+    {% endif %}
+    <div class="container">
+        <label for="title">Titre du congrès</label>
+        <input type="text" name="title" required>
+        <label for="num">Numéro d'édition</label>
+        <input type="number" name="num" min="1" required>
+        <label for="url">Site web du congrès</label>
+        <input type="url" name="url" pattern="https://.*" required>
+        <label for="start">Date de début</label>
+        <input type="date" name="start" required>
+        <label for="end">Date de fin</label>
+        <input type="date" name="end" required>
+        <hr>
+        <label for="themes">Thématiques</label>
+        <div class="themes-container">
+            {% for theme in themes %}
+            <div>
+                <label name="theme">{{theme[1]}}</label>
+                <input type="checkbox" value="{{theme[0]}}" name="theme">
+            </div>
+            {% endfor %}
+        </div>
+        <hr>
+        <label for="activities">Activités</label>
+        <div class="activities-container">
+            {% for activity in activities %}
+            <div>
+                <label name="theme">{{activity[1]}}</label>
+                <input type="checkbox" value="{{activity[0]}}" name="activity">
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <button type="submit">S'inscrire</button>
+</form>
+
+
+
+
+{% endblock %}
