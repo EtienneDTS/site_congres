@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{url_for('static', filename='montant.css')}}">
+{% endblock %}
+{% block title %}Montant{% endblock %}
+
+
+
+{% block content %}
+<div class="container">
+    <h2>Montant</h2>
+    <form action="{{url_for('validation')}}" method="POST">
+        <h3>Congrès</h3>
+        <p><b>{{congres[1]}}</b> édition <b>{{congres[2]}}</b></p>
+
+        <input type="hidden" name="congres" value="{{congres[0]}}">
+        <hr>
+        <h3 for="theme">Thématiques</h3>
+        <div class="themes-container">
+            {% for theme in themes %}
+
+            <p>{{theme[1]}}</p>
+            <input type="hidden" value="{{theme[0]}}" name="theme">
+
+            {% endfor %}
+        </div>
+        <hr>
+        <h3>Activités</h3>
+        <div class="activities-container">
+            {% for activity in activities %}
+            <p>{{activity[1]}}</p>
+            <input type="hidden" value="{{activity[0]}}" name="activity">
+
+            {% endfor %}
+        </div>
+        <hr>
+        <div>
+            <p>Montant à payer: <b>{{total}} €</b></p>
+        </div>
+        <input type="hidden" name="price" value="{{total}}">
+        <p>Souhetez-vous confirmer ?</p>
+        <button type="submit">Confirmer</button>
+    </form>
+</div>
+
+{% endblock %}

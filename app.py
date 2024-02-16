@@ -62,8 +62,8 @@ def participant():
     return render_template("participant.html", data=data, column=column)
 
 
-@app.route("/inscription", methods=["GET", "POST"])
-def inscription():
+@app.route("/inscription-np", methods=["GET", "POST"])
+def inscription_np():
     connexion = create_connexion()
     query = "select * from statuts"
     result = query_db(connexion, query)
@@ -98,13 +98,57 @@ def inscription():
             emailpart,
             dtinscription
             ) values (
+            "{status}", "{lastname}", "{firstname}", "{organism}", "{code}", "{address}", "{city}", "{country}", "{email}", "{date}");"""
+        query_db(connexion, query)
+        connexion.commit()
+        connexion.close()
+        return redirect(url_for("confirmation", email=email))
+    return render_template('inscription_np.html', status=status)
+
+
+@app.route("/inscription", methods=["GET", "POST"])
+def inscription():
+    connexion = create_connexion()
+    query = "select * from statuts"
+    result = query_db(connexion, query)
+    status = result[0]
+    if request.method == "POST":
+        code = request.form.get("cp", "--")
+        lastname = request.form.get("lastname")
+        firstname = request.form.get("firstname")
+        organism = request.form.get("organism")
+        address = request.form.get("address", "--")
+        city = request.form.get("city")
+        country = request.form.get("country")
+        email = request.form.get("email")
+        status = str(request.form.get("status"))
+        connexion = create_connexion()
+        query = f"select * from participants where emailpart = ?;"
+        params = [email]
+        result = query_db(connexion, query, params)
+        if len(result[0]) > 0:
+            message = "Cet email existe déjà"
+            return render_template('inscription.html', message=message)
+        date = datetime.now().strftime("%Y-%m-%d")
+        query = """insert into participants (
+            codestatut, 
+            nompart, 
+            prenompart,
+            organismepart,
+            cppart,
+            adrpart,
+            villepart,
+            payspart,
+            emailpart,
+            dtinscription
+            ) values (
             ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"""
         params = (status, lastname, firstname, organism,
                   code, address, city, country, email, date)
-        result = query_db(connexion, query, params)
+        query_db(connexion, query, params)
         connexion.commit()
         connexion.close()
-        return redirect(url_for("confirmation"))
+        return redirect(url_for("confirmation", email=email))
     return render_template('inscription.html', status=status)
 
 
@@ -122,7 +166,7 @@ def consultation():
         params = [email]
         result = query_db(connexion, query, params)
         if len(result[0]) < 1:
-            message = "Aucun participant de correpond à l'adresse email"
+            message = "Aucun participant de correspond à l'adresse email"
             connexion.close()
             return render_template('consultation.html', message=message)
         codparticipant = result[0][0][0]
@@ -137,7 +181,6 @@ def consultation():
         params = [str(codparticipant)]
         result = query_db(connexion, query, params)
         data = result[0]
-        column = result[1]  # utilise pas car moche demander au prof
         connexion.close()
         congres_list = []
         congres = [[]]
@@ -183,6 +226,7 @@ def recapitulatif():
     context["url"] = request.form.get("url")
     context["start"] = request.form.get("start")
     context["end"] = request.form.get("end")
+    context["price"] = request.form.getlist("price")
     start_date = datetime.strptime(context["start"], "%Y-%m-%d").date()
     end_date = datetime.strptime(context["end"], "%Y-%m-%d").date()
     context["themes"] = request.form.getlist("theme")
@@ -233,7 +277,7 @@ def recapitulatif():
         for code in context["activities"]:
             query = """
             insert into proposer (codeactivite, codcongres)
-            values (?, ?)
+            values (?, ?);
             """
             params = (code, codcongres)
             query_db(connexion, query, params)
@@ -242,11 +286,10 @@ def recapitulatif():
         for code in context["themes"]:
             query = """
             insert into traiter (codcongres, codethematique)
-            values (?, ?)
+            values (?, ?);
             """
             params = (codcongres, code)
             query_db(connexion, query, params)
-    connexion.commit()
 
     query = f"""
     select t.nomthematique 
@@ -262,6 +305,13 @@ def recapitulatif():
         context["start"], "%Y-%m-%d").strftime("%d/%m/%Y")
     context["end"] = datetime.strptime(
         context["end"], "%Y-%m-%d").strftime("%d/%m/%Y")
+    codestatut = 1
+    for price in context["price"]:
+        query = "insert into tarifs (codestatut, codcongres, montanttarif) values (?, ?, ?);"
+        params = (codestatut, codcongres, int(price))
+        query_db(connexion, query, params)
+        codestatut += 1
+    connexion.commit()
     connexion.close()
 
     return render_template("recapitulatif.html", **context)
@@ -297,7 +347,7 @@ def choisir(num):
     """
     params = [num]
     activities = query_db(connexion, query, params)[0]
-    
+
     query = "select c.titrecongres, c.numeditioncongres, c.codcongres from congres c where c.codcongres = ?;"
     params = [num]
     congres = query_db(connexion, query, params)[0][0]
@@ -307,14 +357,14 @@ def choisir(num):
 
 @app.route("/enregistrer", methods=["GET", "POST"])
 def enregistrer():
+    date = datetime.now().strftime("%Y-%m-%d")
+    query = f"select * from congres where dtdebutcongres >= {date};"
     connexion = create_connexion()
-    query = "select * from congres;"
     result = query_db(connexion, query)
     congres = result[0]
     if request.method == "POST":
         email = request.form.get("email")
         codcongres = int(request.form.get("congres"))
-        print(codcongres)
         query = "select * from participants where emailpart = ?;"
         params = [email]
         result = query_db(connexion, query, params)
@@ -327,7 +377,8 @@ def enregistrer():
         status = query_db(connexion, query, params)[0][0][0]
         session["participant"] = {}
         session["participant"]["codparticipant"] = result[0][0][0]
-        session["participant"]["codestatut"] = status
+        session["participant"]["statut"] = status
+        session["participant"]["codestatut"] = result[0][0][1]
         session["participant"]["nompart"] = result[0][0][2]
         session["participant"]["prenompart"] = result[0][0][3]
         session["participant"]["organismepart"] = result[0][0][4]
@@ -341,6 +392,98 @@ def enregistrer():
         return redirect(url_for("choisir", num=codcongres))
 
     return render_template('enregistrer.html', congres=congres)
+
+
+@app.route('/montant', methods=["POST"])
+def montant():
+    all_price = []
+    codestatut = session["participant"]["codestatut"]
+    connexion = create_connexion()
+    codcongres = request.form.get("codcongres")
+    activities = request.form.getlist("activity")
+    themes = request.form.getlist("theme")
+    query = "select * from congres where codcongres = ?;"
+    params = [codcongres]
+    result = query_db(connexion, query, params)
+    congres = result[0][0]
+
+    if len(activities) > 0:
+        activities = tuple(activities)
+        if len(activities) == 1:
+            activities = str(activities).replace(",", "")
+        else:
+            activities = str(activities)
+        query = f"select * from activites where codeactivite in {activities};"
+        result = query_db(connexion, query)
+        activities = result[0]
+    if len(themes) > 0:
+        themes = tuple(themes)
+        if len(themes) == 1:
+            themes = str(themes).replace(",", "")
+        else:
+            themes = str(themes)
+        query = f"select * from thematiques where codethematique in {themes};"
+        result = query_db(connexion, query)
+        themes = result[0]
+    query = "select montanttarif from tarifs where codcongres = ? and codestatut = ?;"
+    params = [codcongres, codestatut]
+    result = query_db(connexion, query, params)
+    price = result[0][0][0]
+    all_price.append(int(price))
+    for activity in activities:
+        all_price.append(int(activity[2]))
+    total = sum(all_price)
+    connexion.close()
+    return render_template('montant.html', congres=congres, activities=activities, themes=themes, total=total)
+
+
+@app.route('/validation', methods=["POST"])
+def validation():
+    connexion = create_connexion()
+    codcongres = request.form.get("congres")
+    query = "insert into inscrire (codparticipant, codcongres) values (?, ?);"
+    params = [session["participant"]["codparticipant"], codcongres]
+    query_db(connexion, query, params)
+    activities = request.form.getlist("activity")
+    themes = request.form.getlist("theme")
+    price = request.form.get("price")
+    
+    query = "select * from congres where codcongres = ?;"
+    params = [codcongres]
+    result = query_db(connexion, query, params)
+    congres = result[0][0]
+
+    if len(activities) > 0:
+        for activity in activities:
+            query = "insert into choix_activites (codeactivite, codparticipant, codcongres) values (?, ?, ?);"
+            params = [activity, session["participant"]["codparticipant"], codcongres]
+            query_db(connexion, query, params)
+        activities = tuple(activities)
+        if len(activities) == 1:
+            activities = str(activities).replace(",", "")
+        else:
+            activities = str(activities)
+        query = f"select * from activites where codeactivite in {activities};"
+        result = query_db(connexion, query)
+        activities = result[0]
+    
+    if len(themes) > 0:
+        for theme in themes:
+            query = "insert into choix_thematiques (codethematique, codparticipant, codcongres) values (?, ?, ?);"
+            params = [theme, session["participant"]["codparticipant"], codcongres]
+            query_db(connexion, query, params)
+        themes = tuple(themes)
+        if len(themes) == 1:
+            themes = str(themes).replace(",", "")
+        else:
+            themes = str(themes)
+        query = f"select * from thematiques where codethematique in {themes};"
+        result = query_db(connexion, query)
+        themes = result[0]
+    connexion.commit()
+    connexion.close()
+
+    return render_template('validation.html', congres=congres, activities=activities, themes=themes, price=price)
 
 
 if __name__ == "__main__":

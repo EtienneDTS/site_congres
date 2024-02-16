@@ -12,7 +12,7 @@
     <div class="user">
         <p>Nom: {{session["participant"]["nompart"]}} </p>
         <p>Prenom: {{session["participant"]["prenompart"]}}</p>
-        <p>Statut: {{session["participant"]["codestatut"]}}</p>
+        <p>Statut: {{session["participant"]["statut"]}}</p>
         <p>Organisme: {{session["participant"]["organismepart"]}}</p>
         <p>Adresse: {{session["participant"]["adrpart"]}}</p>
         <p>CP: {{session["participant"]["cppart"]}}</p>
@@ -23,7 +23,7 @@
     </div>
     <h2>Choisir</h2>
     <h3>les thématiques et activités du congrès {{congres[0]}} edition {{congres[1]}}</h3>
-    <form action="" method="POST">
+    <form action="{{url_for('montant')}}" method="POST">
         <input type="hidden" name="codcongres" value="{{congres[2]}}">
         <h4>Thématiques</h4>
         <div class="themes-container">
