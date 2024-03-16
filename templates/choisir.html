@@ -24,14 +24,14 @@
     <h2>Choisir</h2>
     <h3>les thématiques et activités du congrès {{congres[0]}} edition {{congres[1]}}</h3>
     <form action="{{url_for('montant')}}" method="POST">
-        <input type="hidden" name="codcongres" value="{{congres[2]}}">
+        
         <h4>Thématiques</h4>
         <div class="themes-container">
             {% for theme in themes %}
             <div>
                 <label name="theme">{{theme[1]}}</label>
-                <input type="checkbox" value="{{theme[0]}}" name="theme">
-            </div>
+                <input type="checkbox" value="{{theme[0]}}" name="theme" {% if theme[0] in session["selection"]["themes"]%} checked {% endif %}>
+            </div> 
             {% endfor %}
         </div>
         <hr>
@@ -40,10 +40,11 @@
             {% for activity in activities %}
             <div>
                 <label name="theme">{{activity[1]}}</label>
-                <input type="checkbox" value="{{activity[0]}}" name="activity">
+                <input type="checkbox" value="{{activity[0]}}" name="activity" {% if activity[0] in session["selection"]["activities"] %} checked {% endif %}>
             </div>
             {% endfor %}
         </div>
+        <a href="{{url_for('enregistrer')}}" class="btn">Retour</a>
         <button type="submit">Choisir</button>
 
     </form>

@@ -43,7 +43,9 @@ def congres():
     connexion = create_connexion()
     query = "select * from congres;"
     result = query_db(connexion, query)
+    print(result)
     data = result[0]
+
     metadata = result[1]
     column = [meta[0] for meta in metadata]
     connexion.close()
@@ -77,14 +79,16 @@ def inscription_np():
         city = request.form.get("city")
         country = request.form.get("country")
         email = request.form.get("email")
-        status = str(request.form.get("status"))
+        # permet de s'assurer que l'email n'est pas déja dans la db
         connexion = create_connexion()
         query = f"select * from participants where emailpart = ?;"
         params = [email]
         result = query_db(connexion, query, params)
         if len(result[0]) > 0:
             message = "Cet email existe déjà"
-            return render_template('inscription.html', message=message)
+            return render_template('inscription.html', message=message, status=status)
+        status = str(request.form.get("status"))
+        # La date d'inscription n'est pas ajoutée automatiquement par la base de donnée si on ne l'ajoute nous même
         date = datetime.now().strftime("%Y-%m-%d")
         query = f"""insert into participants (
             codestatut, 
@@ -121,14 +125,15 @@ def inscription():
         city = request.form.get("city")
         country = request.form.get("country")
         email = request.form.get("email")
-        status = str(request.form.get("status"))
         connexion = create_connexion()
         query = f"select * from participants where emailpart = ?;"
         params = [email]
         result = query_db(connexion, query, params)
+        # permet de s'assurer que l'email n'est pas déja dans la db
         if len(result[0]) > 0:
             message = "Cet email existe déjà"
-            return render_template('inscription.html', message=message)
+            return render_template('inscription.html', message=message, status=status)
+        status = str(request.form.get("status"))
         date = datetime.now().strftime("%Y-%m-%d")
         query = """insert into participants (
             codestatut, 
@@ -156,6 +161,8 @@ def inscription():
 def confirmation(email):
     return render_template('confirmation.html', email=email)
 
+# Fait sur la meme page car plus "user friendly" les consignes sont respectées
+
 
 @app.route("/consultation", methods=['POST', 'GET'])
 def consultation():
@@ -165,6 +172,7 @@ def consultation():
         query = "select codparticipant from participants where emailpart = ?"
         params = [email]
         result = query_db(connexion, query, params)
+        # s'assure que l'email existe dans la db dans le cas contraire renvoie un message d'erreur visible dans la page
         if len(result[0]) < 1:
             message = "Aucun participant de correspond à l'adresse email"
             connexion.close()
@@ -182,6 +190,7 @@ def consultation():
         result = query_db(connexion, query, params)
         data = result[0]
         connexion.close()
+        # permet d'avoir une liste de congres et une sous liste de thématique liée à chaque congres
         congres_list = []
         congres = [[]]
 
@@ -204,6 +213,7 @@ def consultation():
 
 @app.route("/creation")
 def creation():
+    # viens dans l'ordre après le récapitulatif
     message = request.args.get("message")
     connexion = create_connexion()
     query = "select * from thematiques"
@@ -232,7 +242,7 @@ def recapitulatif():
     context["themes"] = request.form.getlist("theme")
     context["activities"] = request.form.getlist("activity")
     today = datetime.now().date()
-
+    # étapes de prévention des erreurs avant création qui affiche un message d'erreur sur la page création si nécessaire dans ce cas rien ne sera créé
     if start_date > end_date:
         return redirect(url_for("creation", message="La date de début doit être inférieure à la date de fin"))
     if start_date < today:
@@ -250,7 +260,7 @@ def recapitulatif():
     result = query_db(connexion, query, params)
     if len(result[0]) > 0:
         return redirect(url_for("creation", message=f"Le congrès {context['title']} edition {context['num']} existe déjà"))
-
+    # création du congrès
     query = """insert into congres (
         titrecongres,
         numeditioncongres,
@@ -263,6 +273,8 @@ def recapitulatif():
               context["start"], context["end"], context["url"])
     query_db(connexion, query, params)
     connexion.commit()
+    # récupération du code du congrès pour les étapes suivantes
+    # peut être fait avec SELECT last_insert_rowid() mais cela est équivalent car il ne peut y avoir qu'un seul congrès avec le même titre et le même numéro d'édition comme cela est vérifié plus haut
     query = """
     select c.codcongres 
     from congres c
@@ -272,7 +284,7 @@ def recapitulatif():
     params = (context["title"], context["num"])
     result = query_db(connexion, query, params)
     codcongres = result[0][0][0]
-
+    # ajout des activités et des thématiques
     if len(context["activities"]) > 0:
         for code in context["activities"]:
             query = """
@@ -322,12 +334,12 @@ def logout():
     session.pop('participant', None)
     return redirect(url_for('menu'))
 
-
-@app.route("/choisir/<int:num>", methods=["GET"])
-def choisir(num):
+# Dans l'ordre viens après enregistrer qui est en dessous
+@app.route("/choisir", methods=["GET"])
+def choisir():
     if not session.get("participant"):
         return redirect(url_for("enregistrer"))
-    num = int(num)
+    num = session["selection"]["codcongres"]
     connexion = create_connexion()
     query = """
     select distinct t.codethematique, t.nomthematique
@@ -357,6 +369,8 @@ def choisir(num):
 
 @app.route("/enregistrer", methods=["GET", "POST"])
 def enregistrer():
+    if "selection" in session:
+        session.pop("selection")
     date = datetime.now().strftime("%Y-%m-%d")
     query = f"select * from congres where dtdebutcongres >= {date};"
     connexion = create_connexion()
@@ -372,6 +386,7 @@ def enregistrer():
             message = "Aucun participant ne correspond à l'adresse email"
             connexion.close()
             return render_template('enregistrer.html', congres=congres, message=message)
+        session["selection"] = {"codcongres": codcongres}
         query = "select nomstatut from statuts where codestatut = ?;"
         params = [result[0][0][1]]
         status = query_db(connexion, query, params)[0][0][0]
@@ -389,19 +404,24 @@ def enregistrer():
         session["participant"]["emailpart"] = result[0][0][9]
         session["participant"]["dtinscription"] = result[0][0][10]
         connexion.close()
-        return redirect(url_for("choisir", num=codcongres))
+        return redirect(url_for("choisir"))
 
     return render_template('enregistrer.html', congres=congres)
 
 
 @app.route('/montant', methods=["POST"])
 def montant():
+    # fonction qui prend en compte le tarifs congrès qui ont un prix qui varies selon le statut mais aussi du prix des activités
     all_price = []
     codestatut = session["participant"]["codestatut"]
     connexion = create_connexion()
-    codcongres = request.form.get("codcongres")
-    activities = request.form.getlist("activity")
-    themes = request.form.getlist("theme")
+    codcongres = session["selection"]["codcongres"]
+    session["selection"]["activities"] = list(map(int,request.form.getlist("activity")))
+    session["selection"]["themes"] = list(map(int,request.form.getlist("theme")))
+    session.modified = True
+    activities = session["selection"]["activities"]
+    themes = session["selection"]["themes"]
+    
     query = "select * from congres where codcongres = ?;"
     params = [codcongres]
     result = query_db(connexion, query, params)
@@ -440,14 +460,14 @@ def montant():
 @app.route('/validation', methods=["POST"])
 def validation():
     connexion = create_connexion()
-    codcongres = request.form.get("congres")
+    codcongres = session["selection"]["codcongres"]
     query = "insert into inscrire (codparticipant, codcongres) values (?, ?);"
     params = [session["participant"]["codparticipant"], codcongres]
     query_db(connexion, query, params)
-    activities = request.form.getlist("activity")
-    themes = request.form.getlist("theme")
+    activities = session["selection"]["activities"]
+    themes = session["selection"]["themes"]
     price = request.form.get("price")
-    
+
     query = "select * from congres where codcongres = ?;"
     params = [codcongres]
     result = query_db(connexion, query, params)
@@ -456,7 +476,8 @@ def validation():
     if len(activities) > 0:
         for activity in activities:
             query = "insert into choix_activites (codeactivite, codparticipant, codcongres) values (?, ?, ?);"
-            params = [activity, session["participant"]["codparticipant"], codcongres]
+            params = [activity, session["participant"]
+                      ["codparticipant"], codcongres]
             query_db(connexion, query, params)
         activities = tuple(activities)
         if len(activities) == 1:
@@ -466,11 +487,12 @@ def validation():
         query = f"select * from activites where codeactivite in {activities};"
         result = query_db(connexion, query)
         activities = result[0]
-    
+
     if len(themes) > 0:
         for theme in themes:
             query = "insert into choix_thematiques (codethematique, codparticipant, codcongres) values (?, ?, ?);"
-            params = [theme, session["participant"]["codparticipant"], codcongres]
+            params = [theme, session["participant"]
+                      ["codparticipant"], codcongres]
             query_db(connexion, query, params)
         themes = tuple(themes)
         if len(themes) == 1:
@@ -482,7 +504,7 @@ def validation():
         themes = result[0]
     connexion.commit()
     connexion.close()
-
+    session.pop("selection")
     return render_template('validation.html', congres=congres, activities=activities, themes=themes, price=price)
 
 
